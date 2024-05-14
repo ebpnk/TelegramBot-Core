@@ -30,3 +30,67 @@ modules/: Directory where additional bot modules are stored.
 python main.py
 
 ```
+
+## Example of creating modules
+
+```
+
+from telebot import types
+from bot_setup import additional_menu
+import logging
+import threading
+
+logging.basicConfig(level=logging.INFO)
+
+# Словарь для управления состоянием каждого пользователя
+user_sessions = {}
+
+def setup(bot, chat_id):
+    # Глобальная регистрация команды "Калькулятор"
+    @bot.message_handler(func=lambda message: message.text == "Калькулятор")
+    def calculator(message):
+        chat_id = message.chat.id
+        if chat_id not in user_sessions:
+            user_sessions[chat_id] = True
+            start_calculator_session(message, bot)
+        else:
+            bot.send_message(chat_id, "Вы уже находитесь в сессии калькулятора. Введите выражение или нажмите 'Назад'.")
+
+def start_calculator_session(message, bot):
+    chat_id = message.chat.id
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    back_button = types.KeyboardButton("Назад")
+    markup.add(back_button)
+    msg = bot.send_message(chat_id, "Введите выражение для расчёта (например, 2+2):", reply_markup=markup)
+    bot.register_next_step_handler(msg, process_calculation, bot)
+
+def process_calculation(message, bot):
+    chat_id = message.chat.id
+    if message.text == "Назад":
+        additional_menu(message)
+        del user_sessions[chat_id]  # Удаляем состояние сессии
+        return
+
+    expression = message.text
+    try:
+        if not set(expression).difference('0123456789+-*/.() '):
+            result = eval(expression)  # Выполнение расчета
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+            back_button = types.KeyboardButton("Назад")
+            markup.add(back_button)
+            msg = bot.send_message(chat_id, f"Результат: {result}\nВведите следующее выражение или нажмите 'Назад'.", reply_markup=markup)
+            bot.register_next_step_handler(msg, process_calculation, bot)
+        else:
+            msg = bot.send_message(chat_id, "Ошибка: используйте только числа и знаки операций (+, -, *, /). Попробуйте снова.")
+            bot.register_next_step_handler(msg, process_calculation, bot)
+    except Exception as e:
+        msg = bot.send_message(chat_id, f"Ошибка при вычислении: {str(e)}\nПопробуйте снова.")
+        bot.register_next_step_handler(msg, process_calculation, bot)
+
+def menu_info():
+    return {
+        "title": "Калькулятор",
+        "command": "Калькулятор"
+    }
+
+```
