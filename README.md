@@ -6,13 +6,14 @@ This guide provides instructions on how to set up and run a Telegram bot using P
 
 You need to create a configuration file to store your bot token. Create a file `cfg/core.json` with the following structure:
 
-```json
+```
+json
 {
     "telegram": {
         "TOKEN": "your_token_here"
     }
 }
-````
+```
 Replace "your_token_here" with your actual Telegram bot token.
 
 ## Project Structure
@@ -30,6 +31,44 @@ modules/: Directory where additional bot modules are stored.
 python main.py
 
 ```
+
+## Ru
+
+## Руководство по настройке и использованию бота Telegram
+
+В этом руководстве представлены инструкции по настройке и запуску бота Telegram с использованием Python.
+
+## Конфигурация
+
+Вам необходимо создать файл конфигурации для хранения токена вашего бота. Создайте файл `cfg/core.json` со следующей структурой:
+
+```
+{
+    "telegram": {
+        "TOKEN": "your_token_here"
+    }
+}
+```
+
+Замените `«your_token_here»` своим фактическим токеном бота Telegram.
+
+## Структура проекта
+
+bot_setup.py: этот скрипт инициализирует бота, загружает модули и настраивает главное меню.
+
+main.py: точка входа бота. Он запускает бота и настраивает обработчики меню.
+
+cfg/core.json: файл конфигурации, содержащий токен бота.
+
+модули/: каталог, в котором хранятся дополнительные модули бота.
+
+Запуск бота
+
+```
+python main.py
+
+```
+
 
 ## Example of creating modules
 
